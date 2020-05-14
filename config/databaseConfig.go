@@ -8,7 +8,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // to get driver from psql
 )
 
 type postgresDB interface {
@@ -16,14 +16,12 @@ type postgresDB interface {
 }
 
 type postgresDBImpl struct {
-	logger  log.Logger
-	fileLog *os.File
+	logger log.Logger
 }
 
-func NewDatabase(logger log.Logger, fileLog *os.File) postgresDB {
+func NewDatabase(logger log.Logger) postgresDB {
 	return &postgresDBImpl{
-		logger:  logger,
-		fileLog: fileLog,
+		logger: logger,
 	}
 }
 
@@ -39,6 +37,7 @@ func (p postgresDBImpl) Start(env string) *sql.DB {
 		password := os.Getenv("db.password")
 		dbName := os.Getenv("db.name")
 		dbHost := os.Getenv("db.host")
+		// port is default since we use library from psql
 
 		dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, username, dbName, password) //Build connection string
 		fmt.Println(dbURI)
@@ -46,7 +45,6 @@ func (p postgresDBImpl) Start(env string) *sql.DB {
 		db, err = sql.Open("postgres", dbURI)
 		if err != nil {
 			level.Error(p.logger).Log("exit", err)
-			p.fileLog.WriteString(level.Error(p.logger).Log("exit", err).Error())
 			os.Exit(-1)
 		}
 	}

@@ -94,8 +94,9 @@ func (t TopicRepoImpl) FindByName(ctx context.Context, name string) (bool, error
 func (t TopicRepoImpl) FindById(ctx context.Context, id string) (entity.Topic, error) {
 	instance := &entity.Topic{}
 
+	// in postgres we are using $1 for parameter
 	err := t.db.QueryRow(
-		`SELECT * FROM TOPIC WHERE id = ?`, id).Scan(&instance.ID, &instance.Name, &instance.Description)
+		`SELECT * FROM TOPIC WHERE id = $1`, id).Scan(&instance.ID, &instance.Name, &instance.Description)
 	if err != nil {
 		return entity.Topic{}, err
 	}

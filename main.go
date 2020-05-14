@@ -31,7 +31,7 @@ func main() {
 		logger = log.NewLogfmtLogger(os.Stderr)
 		logger = log.NewSyncLogger(logger)
 		logger = log.With(logger,
-			"project", "website pribadi",
+			"project", "personal profile",
 			"time:", log.DefaultTimestampUTC,
 			"caller", log.DefaultCaller,
 		)
@@ -40,19 +40,20 @@ func main() {
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
+	// there is another tool to write log
 	// 0666 is chmod meaning permission in that file (0666 -> can write (write something to the file) /read (see the file) )
 	// os.O_CREATE if it's not found | os.O_APPEND if it's found
-	f, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		level.Error(logger).Log("exit", err)
-		f.WriteString(level.Error(logger).Log("exit", err).Error())
-		os.Exit(-1) // exit program with status -1
-	}
+	// f, err := os.OpenFile("logfile.log", os.O_CREATE|os.O_APPEND, 0666)
+	// if err != nil {
+	// level.Error(logger).Log("exit", err)
+	// f.WriteString(level.Error(logger).Log("exit", err).Error())
+	// 	os.Exit(-1) // exit program with status -1
+	// }
 
 	var db *sql.DB
 	{
-		database := config.NewDatabase(logger, f)
-		db = database.Start()
+		database := config.NewDatabase(logger)
+		db = database.Start("./.env")
 	}
 
 	ctx := context.Background()
