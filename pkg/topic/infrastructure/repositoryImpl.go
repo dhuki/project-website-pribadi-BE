@@ -22,9 +22,30 @@ func NewRepo(db *sql.DB, logger log.Logger) repository.Repository {
 	}
 }
 
+func (t TopicRepoImpl) CreateTopic(ctx context.Context, topic entity.Topic) error {
+	sqlStatement := `
+		INSERT INTO topic (id, name, description)
+		VALUES ($1, $2, $3)
+	`
+
+	// use db.Exec for operations that do not return rows (insert, delete, update)
+	result, err := t.db.Exec(sqlStatement, topic.ID, topic.Name, topic.Description)
+	if err != nil {
+		return err
+	}
+
+	numRows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	fmt.Println(numRows)
+	return nil
+}
+
 func (t TopicRepoImpl) GetAllTopic(ctx context.Context) ([]entity.Topic, error) {
-	rows, err := t.db.Query("SELECT * FROM TOPIC")
-	defer rows.Close() //will execute after all line in scope function executed
+	// use db.Query for return a set of rows
+	rows, err := t.db.Query("SELECT * FROM topic")
+	defer rows.Close() // will execute after all line in scope function executed
 	if err != nil {
 		return nil, err
 	}
@@ -33,14 +54,13 @@ func (t TopicRepoImpl) GetAllTopic(ctx context.Context) ([]entity.Topic, error) 
 
 	// check if query has next value
 	for rows.Next() {
-
 		instance := &entity.Topic{}
 
 		if topics == nil {
-			topics = []entity.Topic{} //define a slice -> FYI slice more lightweight than array because its using pointer
+			topics = []entity.Topic{} // define a slice -> FYI slice more lightweight than array because its using pointer
 		}
 
-		err := rows.Scan(&instance.ID, &instance.Name, &instance.Description) //Scan copies the columns from the matched row (in database) into the values pointed (in struct) at by its destination
+		err := rows.Scan(&instance.ID, &instance.Name, &instance.Description) // Scan copies the columns from the matched row (in database) into the values pointed (in struct) at by its destination
 		if err != nil {
 			return nil, err
 		}
@@ -51,50 +71,11 @@ func (t TopicRepoImpl) GetAllTopic(ctx context.Context) ([]entity.Topic, error) 
 	return topics, nil
 }
 
-func (t TopicRepoImpl) CreateTopic(ctx context.Context, topic entity.Topic) error {
-	rows, err := t.db.Exec(`
-			SELECT * FROM TOPIC 
-			WHERE LOWER(TRIM(name)) == $1
-		`, topic.Name)
-
-	numRows, err := rows.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(numRows)
-
-	return nil
-}
-
-func (t TopicRepoImpl) FindByName(ctx context.Context, name string) (bool, error) {
-
-	isDuplicated := false
-
-	rows, err := t.db.Exec(`
-			SELECT * FROM TOPIC 
-			WHERE LOWER(TRIM(name)) == $1
-		`, name)
-	if err != nil {
-		return false, err
-	}
-
-	numRows, err := rows.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	if numRows > 0 {
-		isDuplicated = true
-	}
-
-	return isDuplicated, nil
-}
-
 func (t TopicRepoImpl) FindById(ctx context.Context, id string) (entity.Topic, error) {
 	instance := &entity.Topic{}
 
 	// in postgres we are using $1 for parameter
+	// db.QueryRow is used to get at most one return
 	err := t.db.QueryRow(
 		`SELECT * FROM TOPIC WHERE id = $1`, id).Scan(&instance.ID, &instance.Name, &instance.Description)
 	if err != nil {

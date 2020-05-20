@@ -1,9 +1,5 @@
 package service
 
-import (
-	"context"
-)
-
 type Service interface {
-	DuplicatedName(ctx context.Context, name string) (bool, error)
+	// CreateTopic(ctx context.Context, topic entity.Topic) error
 }

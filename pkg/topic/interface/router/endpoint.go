@@ -25,8 +25,9 @@ func makeCreateTopicEndpoint(usecase usecase.Usecase) endpoint.Endpoint {
 		req := request.(transport.Request)
 		topic, err := usecase.CreateTopic(ctx, req)
 		return transport.Response{
-			ID:   topic.ID,
-			Name: topic.Name,
+			ID:          topic.ID,
+			Name:        topic.Name,
+			Description: topic.Description,
 		}, err
 	}
 }

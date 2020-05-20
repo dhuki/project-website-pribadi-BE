@@ -14,6 +14,8 @@ import (
 	"github.com/go-kit/kit/log/level" // side-effect only run func init inside its library
 	_ "github.com/lib/pq"             // side-effect only run func init inside its library
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	topicService "github.com/website-pribadi/cmd/topic"
 	"github.com/website-pribadi/config"
 )
@@ -50,11 +52,20 @@ func main() {
 	// 	os.Exit(-1) // exit program with status -1
 	// }
 
+	// set up database connections
 	var db *sql.DB
 	{
 		database := config.NewDatabase(logger)
 		db = database.Start("./.env")
 	}
+
+	// set up prometheus metrics for latency
+	histogram := prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "request_second",
+		Help: "Lantency",
+	}, []string{"id"})
+	//Registering the defined metric with Prometheus
+	prometheus.Register(histogram)
 
 	ctx := context.Background()
 
@@ -75,7 +86,9 @@ func main() {
 		fmt.Println("listening on port", *httpAddr)
 
 		mux := http.NewServeMux()
-		mux.Handle("/topic/", http.StripPrefix("/topic/api", topicService.NewService(ctx, db, logger)))
+		mux.Handle("/topic/", http.StripPrefix("/topic/api", topicService.NewService(ctx, db, logger, histogram)))
+		// monitoring using prometheus
+		mux.Handle("/metrics/", http.StripPrefix("/metrics/", promhttp.Handler()))
 
 		errs <- http.ListenAndServe(*httpAddr, mux) // it's blocking until error emerge while listen to webserver
 	}()

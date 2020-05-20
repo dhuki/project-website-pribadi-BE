@@ -13,7 +13,7 @@ func NewHTTPServer(ctx context.Context, endpoints Endpoints) http.Handler {
 	r := mux.NewRouter()
 	r.Use(commonMiddleware)
 
-	r.Methods("POST").Path("/create-topic").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/").Handler(httptransport.NewServer(
 		endpoints.CreateTopic,
 		transport.DecodeTopicReq,
 		transport.EncodeResponse,

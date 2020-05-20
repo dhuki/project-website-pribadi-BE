@@ -2,10 +2,9 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	guuid "github.com/google/uuid"
 	"github.com/website-pribadi/pkg/topic/domain/entity"
 	"github.com/website-pribadi/pkg/topic/domain/repository"
 	"github.com/website-pribadi/pkg/topic/domain/service"
@@ -27,20 +26,25 @@ func NewUseCase(repo repository.Repository, service service.Service, logger log.
 }
 
 func (t TopicUseCaseImpl) CreateTopic(ctx context.Context, req transport.Request) (entity.Topic, error) {
-	logger := log.With(t.logger, "method", "Create Topic")
+	// logger := log.With(t.logger, "method", "Create Topic")
 
 	instance := entity.Topic{
+		ID:          guuid.New().String(),
 		Name:        req.Name,
 		Description: req.Description,
 	}
 
-	if isDuplicated, err := t.service.DuplicatedName(ctx, instance.Name); err != nil {
-		level.Error(logger).Log("err", err)
-		fmt.Println(isDuplicated)
+	err := t.repo.CreateTopic(ctx, instance)
+	if err != nil {
+		return entity.Topic{}, err
 	}
 
-	return entity.Topic{}, nil
+	// if isDuplicated, err := t.service.DuplicatedName(ctx, instance.Name); err != nil {
+	// 	level.Error(logger).Log("err", err)
+	// 	fmt.Println(isDuplicated)
+	// }
 
+	return instance, nil
 }
 
 func (t TopicUseCaseImpl) ListTopic(ctx context.Context) ([]entity.Topic, error) {
@@ -48,7 +52,11 @@ func (t TopicUseCaseImpl) ListTopic(ctx context.Context) ([]entity.Topic, error)
 }
 
 func (t TopicUseCaseImpl) GetById(ctx context.Context, req transport.Request) (entity.Topic, error) {
-	// logger := log.With(t.logger, "method", "Get By Id")
+
+	// topic, err := t.repo.FindById(ctx, req.ID)
+	// if err != nil {
+	// 	retur
+	// }
 
 	return entity.Topic{}, nil
 }

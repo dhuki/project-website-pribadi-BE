@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/go-kit/kit/log"
 
 	"github.com/website-pribadi/pkg/topic/domain/service"
@@ -13,13 +15,14 @@ import (
 	"github.com/website-pribadi/pkg/topic/usecase"
 )
 
-func NewService(ctx context.Context, db *sql.DB, logger log.Logger) http.Handler {
+func NewService(ctx context.Context, db *sql.DB, logger log.Logger, histogram *prometheus.HistogramVec) http.Handler {
 	var srv usecase.Usecase
 	{
 		infrastructure := infrastructure.NewRepo(db, logger)
-		service := service.NewServices(infrastructure)
+		service := service.NewService(infrastructure)
 
-		srv = usecase.NewUseCase(infrastructure, service, logger)
+		middlwareUsecase := usecase.NewLoggingInterceptor(logger, histogram)        // setting up to insert middleware first
+		srv = middlwareUsecase(usecase.NewUseCase(infrastructure, service, logger)) // insert real function
 	}
 
 	endpoints := router.NewEndpoint(srv)

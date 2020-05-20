@@ -1,0 +1,19 @@
+mode: atomic
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:18.67,23.2 1 1
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:25.83,33.16 3 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:37.2,38.16 2 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:41.2,42.12 2 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:33.16,35.3 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:38.16,40.3 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:45.81,49.16 3 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:53.2,56.18 2 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:71.2,71.20 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:49.16,51.3 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:56.18,59.20 2 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:63.3,64.17 2 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:68.3,68.37 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:59.20,61.4 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:64.17,66.4 1 0
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:74.87,81.16 3 1
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:84.2,84.23 1 1
+github.com/website-pribadi/pkg/topic/infrastructure/repositoryImpl.go:81.16,83.3 1 0
