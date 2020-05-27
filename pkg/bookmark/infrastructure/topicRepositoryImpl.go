@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/go-kit/kit/log"
-	"github.com/website-pribadi/pkg/topic/domain/entity"
-	"github.com/website-pribadi/pkg/topic/domain/repository"
+	"github.com/website-pribadi/pkg/bookmark/domain/entity"
+	"github.com/website-pribadi/pkg/bookmark/domain/repository"
 )
 
 type TopicRepoImpl struct {
@@ -15,7 +15,7 @@ type TopicRepoImpl struct {
 	logger log.Logger
 }
 
-func NewRepo(db *sql.DB, logger log.Logger) repository.Repository {
+func TopicNewRepo(db *sql.DB, logger log.Logger) repository.TopicRepository {
 	return &TopicRepoImpl{
 		db:     db,
 		logger: log.With(logger, "Repo lecturer", "sql"),
@@ -77,7 +77,7 @@ func (t TopicRepoImpl) FindById(ctx context.Context, id string) (entity.Topic, e
 	// in postgres we are using $1 for parameter
 	// db.QueryRow is used to get at most one return
 	err := t.db.QueryRow(
-		`SELECT * FROM TOPIC WHERE id = $1`, id).Scan(&instance.ID, &instance.Name, &instance.Description)
+		`SELECT * FROM topic WHERE id = $1`, id).Scan(&instance.ID, &instance.Name, &instance.Description)
 	if err != nil {
 		return entity.Topic{}, err
 	}

@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"context"
 
-	"github.com/website-pribadi/pkg/topic/domain/entity"
+	"github.com/website-pribadi/pkg/bookmark/domain/entity"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

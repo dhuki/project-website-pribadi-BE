@@ -15,10 +15,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/website-pribadi/config"
-	"github.com/website-pribadi/pkg/topic/domain/repository"
+	"github.com/website-pribadi/pkg/bookmark/domain/repository"
 )
 
-var repo repository.Repository
+var repo repository.TopicRepository
 
 func TestInfrastructure(t *testing.T) {
 	RegisterFailHandler(Fail)

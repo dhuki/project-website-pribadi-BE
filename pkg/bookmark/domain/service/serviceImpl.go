@@ -1,14 +1,14 @@
 package service
 
 import (
-	"github.com/website-pribadi/pkg/topic/domain/repository"
+	"github.com/website-pribadi/pkg/bookmark/domain/repository"
 )
 
 type TopicServicesImpl struct {
-	repo repository.Repository
+	repo repository.TopicRepository
 }
 
-func NewService(repo repository.Repository) Service {
+func NewService(repo repository.TopicRepository) Service {
 	return &TopicServicesImpl{
 		repo: repo,
 	}

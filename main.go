@@ -16,7 +16,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	topicService "github.com/website-pribadi/cmd/topic"
+	bookmarkService "github.com/website-pribadi/cmd/bookmark"
 	"github.com/website-pribadi/config"
 )
 
@@ -69,6 +69,16 @@ func main() {
 
 	ctx := context.Background()
 
+	// 1. insert all the needs to bookmark automatically inject because bookmark
+	// using pointer receiver (mat ryer style) *he kinda not like many param to pass.
+	// 2. give only dependent unit that use in that server.
+	bookmark := bookmarkService.BookmarkServer{
+		Ctx:       ctx,
+		Db:        db,
+		Histogram: histogram,
+		Logger:    logger,
+	}
+
 	errs := make(chan error)
 
 	// go routine
@@ -86,9 +96,9 @@ func main() {
 		fmt.Println("listening on port", *httpAddr)
 
 		mux := http.NewServeMux()
-		mux.Handle("/topic/", http.StripPrefix("/topic/api", topicService.NewService(ctx, db, logger, histogram)))
-		// monitoring using prometheus
-		mux.Handle("/metrics/", http.StripPrefix("/metrics/", promhttp.Handler()))
+		mux.Handle("/bookmark/", http.StripPrefix("/bookmark/api", bookmark.Start()))
+		// monitoring using prometheus all metrics is in here
+		mux.Handle("/metrics/", http.StripPrefix("/metrics", promhttp.Handler()))
 
 		errs <- http.ListenAndServe(*httpAddr, mux) // it's blocking until error emerge while listen to webserver
 	}()
