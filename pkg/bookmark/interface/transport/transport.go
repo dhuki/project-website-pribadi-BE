@@ -23,23 +23,18 @@ func NewHTTPServer(ctx context.Context, endpoints endpoint.Endpoint, logger log.
 		httptransport.ServerErrorHandler(transportKit.NewLogErrorHandler(logger)), // log error to terminal
 	}
 
-	r.Methods("POST").Path("/").Handler(httptransport.NewServer(
-		endpoints.CreateTopic,
-		model.DecodeTopicReq,
-		model.EncodeResponse,
-	))
-
-	r.Methods("GET").Path("/{id}").Handler(httptransport.NewServer(
-		endpoints.GetById,
-		model.DecodeTopicGetById,
+	r.Methods("POST").Path("/topic").Handler(httptransport.NewServer(
+		endpoints.CreateReferenceWithTopic,
+		model.DecodeReferenceWithTopicReq,
 		model.EncodeResponse,
 		options...,
 	))
 
-	r.Methods("GET").Path("/").Handler(httptransport.NewServer(
-		endpoints.GetAllTopic,
-		model.DecodeTopicGetAll,
+	r.Methods("POST").Path("/").Handler(httptransport.NewServer(
+		endpoints.CreateReference,
+		model.DecodeReferenceReq,
 		model.EncodeResponse,
+		options...,
 	))
 
 	return r

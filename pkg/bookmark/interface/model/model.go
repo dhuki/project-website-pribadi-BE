@@ -3,11 +3,8 @@ package model
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type BaseResponse struct {
@@ -22,21 +19,22 @@ func EncodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 }
 
 type (
-	TopicRequest struct {
-		ID          string `json:"id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
+	ReferenceTopicRequest struct {
+		NameTopic        string   `json:"nameTopic"`
+		DescriptionTopic string   `json:"descriptionTopic"`
+		Links            []string `json:"links"`
 	}
 
-	TopicResponse struct {
-		ID          string `json:"id"`
-		Name        string `json:"name"`
-		Description string `json:"description"`
+	ReferenceTopicResponse struct {
+		ID               string            `json:"id"`
+		NameTopic        string            `json:"name"`
+		DescriptionTopic string            `json:"description"`
+		Reference        ReferenceResponse `json:"reference"`
 	}
 )
 
-func DecodeTopicReq(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req TopicRequest
+func DecodeReferenceWithTopicReq(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req ReferenceTopicRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return nil, err
@@ -44,28 +42,18 @@ func DecodeTopicReq(ctx context.Context, r *http.Request) (interface{}, error) {
 	return req, nil
 }
 
-func DecodeTopicGetById(ctx context.Context, r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	if id == "" {
-		return nil, errors.New("id is empty")
-	}
-
-	req := TopicRequest{
-		ID: id,
-	}
-	return req, nil
-}
-
-func DecodeTopicGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
-	return TopicRequest{}, nil
-}
-
 type (
 	ReferenceRequest struct {
 		ID      string `json:"id"`
-		TopicId string `json:"topicId"`
+		TopicID string `json:"topicId"`
 		Link    string `json:"link"`
+	}
+
+	ReferenceResponse struct {
+		ID        string `json:"id"`
+		TopicID   string `json:"topicId"`
+		TopicName string `json:"topicName"`
+		Link      string `json:"link"`
 	}
 )
 
@@ -77,3 +65,20 @@ func DecodeReferenceReq(ctx context.Context, r *http.Request) (interface{}, erro
 	}
 	return req, nil
 }
+
+// func DecodeTopicGetById(ctx context.Context, r *http.Request) (interface{}, error) {
+// 	vars := mux.Vars(r)
+// 	id := vars["id"]
+// 	if id == "" {
+// 		return nil, errors.New("id is empty")
+// 	}
+
+// 	req := TopicRequest{
+// 		ID: id,
+// 	}
+// 	return req, nil
+// }
+
+// func DecodeTopicGetAll(ctx context.Context, r *http.Request) (interface{}, error) {
+// 	return TopicRequest{}, nil
+// }

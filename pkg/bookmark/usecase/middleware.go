@@ -31,28 +31,14 @@ func NewLoggingInterceptor(logger log.Logger, histogram *prometheus.HistogramVec
 	}
 }
 
-func (l loggingMiddleware) CreateTopic(ctx context.Context, req model.TopicRequest) (topic model.BaseResponse, err error) {
+func (l loggingMiddleware) CreateReferenceWithTopic(ctx context.Context, req model.ReferenceTopicRequest) (topic model.BaseResponse, err error) {
 	start := time.Now()
 	defer func() { // anonymous defer func, there are three different defer func : https://www.geeksforgeeks.org/defer-keyword-in-golang/
 		latency := time.Since(start)
 		l.histogram.WithLabelValues(fmt.Sprintf("%v", topic.Data)).Observe(latency.Seconds())
-		level.Info(l.logger).Log("req : ", req.ID, "result : ", topic.Data)
+		// level.Info(l.logger).Log("req : ", req.ID, "result : ", topic.Data)
 	}()
-	return l.next.CreateTopic(ctx, req)
-}
-
-func (l loggingMiddleware) ListTopic(ctx context.Context) (model.BaseResponse, error) {
-	defer func() { // anonymous defer func, there are three different defer func : https://www.geeksforgeeks.org/defer-keyword-in-golang/
-		level.Info(l.logger).Log("result : ", entity.Topic{}.ID)
-	}()
-	return l.next.ListTopic(ctx)
-}
-
-func (l loggingMiddleware) GetById(ctx context.Context, req model.TopicRequest) (model.BaseResponse, error) {
-	defer func() { // anonymous defer func, there are three different defer func : https://www.geeksforgeeks.org/defer-keyword-in-golang/
-		level.Info(l.logger).Log("req : ", req, "result : ", entity.Topic{}.ID)
-	}()
-	return l.next.GetById(ctx, req)
+	return l.next.CreateReferenceWithTopic(ctx, req)
 }
 
 func (l loggingMiddleware) CreateReference(ctx context.Context, req model.ReferenceRequest) (model.BaseResponse, error) {

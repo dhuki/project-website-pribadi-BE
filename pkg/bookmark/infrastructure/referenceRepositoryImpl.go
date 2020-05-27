@@ -25,5 +25,16 @@ func ReferenceNewRepo(db *sql.DB, logger log.Logger) repository.ReferenceReposit
 }
 
 func (r ReferenceRepoImpl) CreateReference(ctx context.Context, reference entity.Reference) error {
+	sqlStatement := `
+		INSERT INTO reference (id, topic_id, link)
+		VALUES ($1, $2, $3)
+	`
+
+	// use db.Exec for operations that do not return rows (insert, delete, update)
+	_, err := r.db.Exec(sqlStatement, reference.ID, reference.TopicID, reference.Link)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

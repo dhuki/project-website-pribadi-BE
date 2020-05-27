@@ -3,7 +3,6 @@ package infrastructure
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/go-kit/kit/log"
 	"github.com/website-pribadi/pkg/bookmark/domain/entity"
@@ -29,16 +28,15 @@ func (t TopicRepoImpl) CreateTopic(ctx context.Context, topic entity.Topic) erro
 	`
 
 	// use db.Exec for operations that do not return rows (insert, delete, update)
-	result, err := t.db.Exec(sqlStatement, topic.ID, topic.Name, topic.Description)
+	_, err := t.db.Exec(sqlStatement, topic.ID, topic.Name, topic.Description)
 	if err != nil {
 		return err
 	}
 
-	numRows, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	fmt.Println(numRows)
+	// _, err := result.RowsAffected() // check row affected by query result
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
@@ -81,5 +79,6 @@ func (t TopicRepoImpl) FindById(ctx context.Context, id string) (entity.Topic, e
 	if err != nil {
 		return entity.Topic{}, err
 	}
+
 	return *instance, nil
 }

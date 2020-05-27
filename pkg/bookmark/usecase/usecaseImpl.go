@@ -2,9 +2,11 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/go-kit/kit/log"
 	guuid "github.com/google/uuid"
+	"github.com/website-pribadi/common"
 	"github.com/website-pribadi/pkg/bookmark/domain/entity"
 	"github.com/website-pribadi/pkg/bookmark/domain/repository"
 	"github.com/website-pribadi/pkg/bookmark/domain/service"
@@ -12,39 +14,40 @@ import (
 )
 
 type UsecaseImpl struct {
-	TopicRepo     repository.TopicRepository
-	ReferenceRepo repository.ReferenceRepository
-	service       service.Service
-	logger        log.Logger
+	TopicRepo        repository.TopicRepository
+	ReferenceRepo    repository.ReferenceRepository
+	TopicService     service.TopicService
+	ReferenceService service.ReferenceService
+	Logger           log.Logger
 }
 
-func NewUsecase(
-	TopicRepo repository.TopicRepository,
-	ReferenceRepo repository.ReferenceRepository,
-	service service.Service, logger log.Logger) Usecase {
-	return &UsecaseImpl{
-		TopicRepo:     TopicRepo,
-		ReferenceRepo: ReferenceRepo,
-		service:       service,
-		logger:        logger,
-	}
-}
-
-func (t UsecaseImpl) CreateTopic(ctx context.Context, req model.TopicRequest) (model.BaseResponse, error) {
+func (t *UsecaseImpl) CreateReferenceWithTopic(ctx context.Context, req model.ReferenceTopicRequest) (model.BaseResponse, error) {
 	// logger := log.With(t.logger, "method", "Create Topic")
 
 	var response model.BaseResponse
 	{
-		instance := entity.Topic{
+		instanceTopic := entity.Topic{
 			ID:          guuid.New().String(),
-			Name:        req.Name,
-			Description: req.Description,
+			Name:        req.NameTopic,
+			Description: req.DescriptionTopic,
 		}
 
-		err := t.TopicRepo.CreateTopic(ctx, instance)
+		err := t.TopicRepo.CreateTopic(ctx, instanceTopic)
 		if err != nil {
-			response.Message = "Error"
-			return response, err
+			return model.BaseResponse{}, err
+		}
+
+		for _, value := range req.Links {
+			instanceReference := entity.Reference{
+				ID:      guuid.New().String(),
+				TopicID: instanceTopic.ID,
+				Link:    value,
+			}
+
+			t.ReferenceRepo.CreateReference(ctx, instanceReference)
+			if err != nil {
+				return model.BaseResponse{}, err
+			}
 		}
 
 		response.Message = "Success"
@@ -58,40 +61,30 @@ func (t UsecaseImpl) CreateTopic(ctx context.Context, req model.TopicRequest) (m
 	return response, nil
 }
 
-func (t UsecaseImpl) ListTopic(ctx context.Context) (model.BaseResponse, error) {
+func (t *UsecaseImpl) CreateReference(ctx context.Context, req model.ReferenceRequest) (model.BaseResponse, error) {
 
 	var response model.BaseResponse
 	{
-		topics, err := t.TopicRepo.GetAllTopic(ctx)
-		if err != nil {
-			response.Message = "Error"
-			return response, err
+		instance := entity.Reference{
+			ID:      guuid.New().String(),
+			TopicID: req.TopicID,
+			Link:    req.Link,
 		}
 
-		response.Data = topics
-		response.Message = "Success"
+		reference, err := t.ReferenceService.FindMatchTopic(ctx, instance)
+
+		switch err {
+		case sql.ErrNoRows:
+			return model.BaseResponse{
+				Message: common.ErrNotFound.Error(),
+				ErrCode: common.ErrNotFoundCode,
+			}, nil
+		case err:
+			return model.BaseResponse{}, nil
+		}
+
+		response.Data = reference
 	}
 
 	return response, nil
-}
-
-func (t UsecaseImpl) GetById(ctx context.Context, req model.TopicRequest) (model.BaseResponse, error) {
-
-	var response model.BaseResponse
-	{
-		topic, err := t.TopicRepo.FindById(ctx, req.ID)
-		if err != nil {
-			response.Message = "Error"
-			return response, err
-		}
-
-		response.Data = topic
-		response.Message = "Success"
-	}
-
-	return response, nil
-}
-
-func (t UsecaseImpl) CreateReference(ctx context.Context, req model.ReferenceRequest) (model.BaseResponse, error) {
-	return model.BaseResponse{}, nil
 }

@@ -7,8 +7,6 @@ import (
 )
 
 type Usecase interface {
-	CreateTopic(ctx context.Context, req model.TopicRequest) (model.BaseResponse, error)
-	ListTopic(ctx context.Context) (model.BaseResponse, error)
-	GetById(ctx context.Context, req model.TopicRequest) (model.BaseResponse, error)
+	CreateReferenceWithTopic(ctx context.Context, req model.ReferenceTopicRequest) (model.BaseResponse, error)
 	CreateReference(ctx context.Context, req model.ReferenceRequest) (model.BaseResponse, error)
 }

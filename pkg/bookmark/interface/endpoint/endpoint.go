@@ -9,38 +9,29 @@ import (
 )
 
 type Endpoint struct {
-	CreateTopic endpoint.Endpoint
-	GetById     endpoint.Endpoint
-	GetAllTopic endpoint.Endpoint
+	CreateReferenceWithTopic endpoint.Endpoint
+	CreateReference          endpoint.Endpoint
 }
 
 func NewEndpoint(usecase usecase.Usecase) Endpoint {
 	return Endpoint{
-		CreateTopic: makeCreateTopicEndpoint(usecase),
-		GetById:     makeGetTopicByIdEndpoint(usecase),
-		GetAllTopic: makeGetAllTopicEndpoint(usecase),
+		CreateReferenceWithTopic: makeCreateReferenceWithTopic(usecase),
+		CreateReference:          makeCreateReferenceEndpoint(usecase),
 	}
 }
 
-func makeCreateTopicEndpoint(usecase usecase.Usecase) endpoint.Endpoint {
+func makeCreateReferenceEndpoint(usecase usecase.Usecase) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(model.TopicRequest)
-		response, err := usecase.CreateTopic(ctx, req)
+		req := request.(model.ReferenceRequest)
+		response, err := usecase.CreateReference(ctx, req)
 		return response, err
 	}
 }
 
-func makeGetTopicByIdEndpoint(usecase usecase.Usecase) endpoint.Endpoint {
+func makeCreateReferenceWithTopic(usecase usecase.Usecase) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(model.TopicRequest)
-		response, err := usecase.GetById(ctx, req)
-		return response, err
-	}
-}
-
-func makeGetAllTopicEndpoint(usecase usecase.Usecase) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		response, err := usecase.ListTopic(ctx)
+		req := request.(model.ReferenceTopicRequest)
+		response, err := usecase.CreateReferenceWithTopic(ctx, req)
 		return response, err
 	}
 }

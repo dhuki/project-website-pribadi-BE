@@ -28,12 +28,20 @@ func (b *BookmarkServer) Start() http.Handler {
 	var srv usecase.Usecase
 	{
 		TopicInfrastructure := infrastructure.TopicNewRepo(b.Db, b.Logger)
-		service := service.NewService(TopicInfrastructure)
-
+		TopicService := service.NewService(TopicInfrastructure)
 		ReferenceInfrastructure := infrastructure.ReferenceNewRepo(b.Db, b.Logger)
+		ReferenceService := service.NewReferenceService(TopicInfrastructure)
 
-		middlwareUsecase := usecase.NewLoggingInterceptor(b.Logger, b.Histogram)                                    // setting up to insert middleware, type data of func
-		srv = middlwareUsecase(usecase.NewUsecase(TopicInfrastructure, ReferenceInfrastructure, service, b.Logger)) // insert real function, call middleware func first
+		usecaseImpl := &usecase.UsecaseImpl{
+			TopicRepo:        TopicInfrastructure,
+			ReferenceRepo:    ReferenceInfrastructure,
+			TopicService:     TopicService,
+			ReferenceService: ReferenceService,
+			Logger:           b.Logger,
+		}
+
+		middlewareUsecase := usecase.NewLoggingInterceptor(b.Logger, b.Histogram) // setting up to insert middleware, type data of func
+		srv = middlewareUsecase(usecaseImpl)                                      // insert real function, call middleware func first
 	}
 
 	endpoint := endpoint.NewEndpoint(srv)
