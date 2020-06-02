@@ -39,6 +39,7 @@ func DecodeReferenceWithTopicReq(ctx context.Context, r *http.Request) (interfac
 	if err != nil {
 		return nil, err
 	}
+
 	return req, nil
 }
 

@@ -12,7 +12,7 @@ type ReferenceServiceImpl struct {
 }
 
 func NewReferenceService(repo repository.TopicRepository) ReferenceService {
-	return &ReferenceServiceImpl{
+	return ReferenceServiceImpl{ // not problem to return non pointer struct if it receiver down there is pass by value
 		repo: repo,
 	}
 }

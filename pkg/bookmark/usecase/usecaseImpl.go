@@ -24,6 +24,13 @@ type UsecaseImpl struct {
 func (t *UsecaseImpl) CreateReferenceWithTopic(ctx context.Context, req model.ReferenceTopicRequest) (model.BaseResponse, error) {
 	// logger := log.With(t.logger, "method", "Create Topic")
 
+	// go func() (model.BaseResponse, error) {
+	// 	select {
+	// 	case <-ctx.Done():
+	// 		return model.BaseResponse{}, ctx.Err()
+	// 	}
+	// }()
+
 	var response model.BaseResponse
 	{
 		instanceTopic := entity.Topic{

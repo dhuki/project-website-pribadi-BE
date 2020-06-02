@@ -27,11 +27,17 @@ func (b *BookmarkServer) Start() http.Handler {
 
 	var srv usecase.Usecase
 	{
+		// these all using value receiver
 		TopicInfrastructure := infrastructure.TopicNewRepo(b.Db, b.Logger)
 		TopicService := service.NewService(TopicInfrastructure)
 		ReferenceInfrastructure := infrastructure.ReferenceNewRepo(b.Db, b.Logger)
 		ReferenceService := service.NewReferenceService(TopicInfrastructure)
 
+		// if we're using pointer receiver class that implement interface, it must return pointer of class.
+		// so there is two kind of implenet interface
+		// by value, and by reference
+		// if we're using value receiver class that implement interface, it must return value of class.
+		// below example using pointer receiver
 		usecaseImpl := &usecase.UsecaseImpl{
 			TopicRepo:        TopicInfrastructure,
 			ReferenceRepo:    ReferenceInfrastructure,
@@ -39,6 +45,7 @@ func (b *BookmarkServer) Start() http.Handler {
 			ReferenceService: ReferenceService,
 			Logger:           b.Logger,
 		}
+		// end implemented
 
 		middlewareUsecase := usecase.NewLoggingInterceptor(b.Logger, b.Histogram) // setting up to insert middleware, type data of func
 		srv = middlewareUsecase(usecaseImpl)                                      // insert real function, call middleware func first

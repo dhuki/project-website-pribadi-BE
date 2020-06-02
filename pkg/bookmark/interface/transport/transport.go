@@ -23,12 +23,12 @@ func NewHTTPServer(ctx context.Context, endpoints endpoint.Endpoint, logger log.
 		httptransport.ServerErrorHandler(transportKit.NewLogErrorHandler(logger)), // log error to terminal
 	}
 
-	r.Methods("POST").Path("/topic").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/topic").Handler(adminOnly(httptransport.NewServer(
 		endpoints.CreateReferenceWithTopic,
 		model.DecodeReferenceWithTopicReq,
 		model.EncodeResponse,
 		options...,
-	))
+	)))
 
 	r.Methods("POST").Path("/").Handler(httptransport.NewServer(
 		endpoints.CreateReference,
@@ -38,6 +38,19 @@ func NewHTTPServer(ctx context.Context, endpoints endpoint.Endpoint, logger log.
 	))
 
 	return r
+}
+
+func adminOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// if true {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// } it will be process authentication
+		ctx := r.Context()                               // get context background from request
+		child := context.WithValue(ctx, "auth", "dhuki") // making child of parent context with value inside it
+		req := r.WithContext(child)                      // bind ctx with request
+		next.ServeHTTP(w, req)
+	})
 }
 
 func commonMiddleware(next http.Handler) http.Handler {

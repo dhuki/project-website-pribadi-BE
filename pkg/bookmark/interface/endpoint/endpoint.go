@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/website-pribadi/pkg/bookmark/interface/model"
@@ -30,6 +31,7 @@ func makeCreateReferenceEndpoint(usecase usecase.Usecase) endpoint.Endpoint {
 
 func makeCreateReferenceWithTopic(usecase usecase.Usecase) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		fmt.Println(ctx.Value("auth").(string)) // casting to string
 		req := request.(model.ReferenceTopicRequest)
 		response, err := usecase.CreateReferenceWithTopic(ctx, req)
 		return response, err

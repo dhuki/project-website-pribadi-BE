@@ -84,7 +84,7 @@ func main() {
 	// go routine
 	go func() {
 		c := make(chan os.Signal, 1) //make(T, n) T is type and n is length
-		// registers the given channel to receive notifications of the specified signals.
+		// registers the given channel to	 receive notifications of the specified signals.
 		// SIGINT (Signal Interrupt (CTRL + C))
 		// SIGTERM (Signal Terminated (KILL command))
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
